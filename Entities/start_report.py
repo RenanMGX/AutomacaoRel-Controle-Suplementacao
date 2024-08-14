@@ -15,13 +15,13 @@ class StartReport(SAPManipulation):
         self.__log:Logs = Logs()
 
     @SAPManipulation.start_SAP
-    def extrair_rel(self, *, path_destiny:str, file_name:str="ralatorio_suprimentos.xlsx") -> str:
+    def extrair_rel(self, *, download_path:str, file_name:str="ralatorio_suprimentos.xlsx") -> str:
         if not file_name.endswith(".xlsx"):
             file_name += ".xlsx"
         file_name = datetime.now().strftime(f"%Y%m%d-%H%M%S_{file_name}")
             
-        if not os.path.exists(path_destiny):
-            raise FolderNotFound(f"Caminho não encontrado: {path_destiny}")
+        if not os.path.exists(download_path):
+            raise FolderNotFound(f"Caminho não encontrado: {download_path}")
         
         try:
             self.session.findById("wnd[0]/tbar[0]/okcd").text = "/n start_report"
@@ -36,7 +36,7 @@ class StartReport(SAPManipulation):
             self.session.findById("wnd[0]/usr/cntlCONTAINER/shellcont/shell").contextMenu()
             self.session.findById("wnd[0]/usr/cntlCONTAINER/shellcont/shell").selectContextMenuItem("&XXL")
             self.session.findById("wnd[1]/tbar[0]/btn[0]").press()
-            self.session.findById("wnd[1]/usr/ctxtDY_PATH").text = path_destiny
+            self.session.findById("wnd[1]/usr/ctxtDY_PATH").text = download_path
             self.session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = file_name
             self.session.findById("wnd[1]/tbar[0]/btn[0]").press()
         
@@ -47,7 +47,7 @@ class StartReport(SAPManipulation):
         
         Functions.fechar_excel(file_name)
         self.fechar_sap()
-        return os.path.join(path_destiny, file_name)
+        return os.path.join(download_path, file_name)
         
 
 if __name__ == "__main__":

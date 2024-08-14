@@ -60,12 +60,6 @@ class FileManipulate:
         self.__file_path = destiny
         
         return self
-            
-    
-    
-    
-    
-
 
 
 if __name__ == "__main__":
