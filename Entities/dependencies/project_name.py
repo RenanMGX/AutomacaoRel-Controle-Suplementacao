@@ -1,0 +1,1 @@
+PROJECT_NAME:str = "Automação de Relatorios do Controle de Obra - Fernando"

@@ -1,3 +1,5 @@
+import traceback
+from Entities.dependencies.logs import Logs
 from Entities.start_report import StartReport
 from Entities.file_manipulate import FileManipulate
 from Entities.dependencies.functions import _print
@@ -17,26 +19,44 @@ class Execute:
     def destiny_path(self) -> str:
         return f"C:\\Users\\{getuser()}\\PATRIMAR ENGENHARIA S A\\RPA - Documentos\\RPA - Dados\\RPA - Controle - Suplementação"
     
-    @property
-    def new_name(self) -> str:
-        return "ControleObra_Suplementacao.json"
     
     def __init__(self) -> None:
         self.__sap_start_report:StartReport = StartReport('SAP_PRD')
         #self.__file_manipulate: FileManipulate = FileManipulate()
     
     def start(self) -> None:
-        file_path:str = self.__sap_start_report.extrair_rel(download_path=self.download_path)
+        file_path_suplementacao:str = self.__sap_start_report.extrair_rel_suplementacao(download_path=self.download_path)
+        FileManipulate(file_path_suplementacao).excelToJson(remove_duplicate=True).moveTo(self.destiny_path, new_name="ControleObra_Suplementacao.json")
         
-        self.__file_manipulate:FileManipulate = FileManipulate(file_path)
+        file_path_reclassificacao:str = self.__sap_start_report.extrair_rel_reclassiicacao(download_path=self.download_path)
+        FileManipulate(file_path_reclassificacao).excelToJson().moveTo(self.destiny_path, new_name="ControleObra_Recassificacao.json")
         
-        self.__file_manipulate.excelToJson(remove_duplicate=True).moveTo(self.destiny_path, new_name=self.new_name)
+        self.__sap_start_report.fechar_sap()
+        
+    def test(self):
+        print("testado")
         
 if __name__ == "__main__":
+    
+    valid_argvs = {
+        "start" : Execute().start,
+        "teste" : Execute().test
+    }
+    
+    def informativo():
+        _print("Argumentos necessario: ")
+        for key, value in valid_argvs.items():
+            _print(key)
+                
     argv:list = sys.argv
     if len(argv) > 1:
-        if argv[1] == 'start':
-            Execute().start()
+        if argv[1] in valid_argvs:
+            try:
+                valid_argvs[argv[1]]()
+                Logs().register(status='Concluido', description="automação executou com exito!")
+            except Exception as error:
+                Logs().register(status='Error', description="algum erro aconteceu ao executar o script", exception=traceback.format_exc())
+        else:
+            informativo()
     else:
-        _print("Argumentos necessario 'start'")
-    
+        informativo()
