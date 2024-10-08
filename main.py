@@ -6,6 +6,7 @@ from Entities.dependencies.functions import _print
 from getpass import getuser
 import os
 import sys
+from Entities.dependencies.config import Config
 
 class Execute:
     @property
@@ -17,7 +18,7 @@ class Execute:
     
     @property
     def destiny_path(self) -> str:
-        return f"C:\\Users\\{getuser()}\\PATRIMAR ENGENHARIA S A\\RPA - Documentos\\RPA - Dados\\RPA - Controle - Suplementação"
+        return Config()['paths']['destiny_path']
     
     
     def __init__(self) -> None:

@@ -4,10 +4,13 @@ from time import sleep
 from datetime import datetime
 import re
 import os
+from colorama import Fore
+from typing import Literal
+import asyncio
 
 class Functions:
     @staticmethod
-    def fechar_excel(path:str, *, timeout:int=5, wait:int=0) -> bool:
+    def fechar_excel(path:str, *, timeout:int=1, wait:int=0) -> bool:
         if wait > 0:
             sleep(wait)
         try:
@@ -21,10 +24,10 @@ class Functions:
                             if len(xw.apps) <= 0:
                                 app.kill()                        
                             achou = True
-                        # if not re.search(r'Pasta[0-9]+', open_app.name) is None:
-                        #     open_app.close()
-                        #     if len(xw.apps) <= 0:
-                        #         app.kill()                        
+                        if not re.search(r'Pasta[0-9]+', open_app.name) is None:
+                            open_app.close()
+                            if len(xw.apps) <= 0:
+                                app.kill()                        
                 sleep(1)
             if achou:
                 return True
@@ -47,7 +50,7 @@ class Functions:
             path = path[0:-1]
         return path
     
-def _print(*args, end="\n"):
+def _print(*args, end="\n", ):
     if not end.endswith("\n"):
         end += "\n"
     value = ""
@@ -56,8 +59,42 @@ def _print(*args, end="\n"):
     
     print(datetime.now().strftime(f"[%d/%m/%Y - %H:%M:%S] - {value}"), end=end)
 
+class P:
+    @property
+    def date(self) -> str:
+        return datetime.now().strftime("[%d/%m/%Y - %H:%M:%S] ")
+    
+    @property
+    def color(self) -> str:
+        if self.__color == 'white':
+            return Fore.WHITE
+        elif self.__color == 'blue':
+            return Fore.BLUE
+        elif self.__color == 'green':
+            return Fore.GREEN
+        elif self.__color == 'red':
+            return Fore.RED
+        elif self.__color =='cyan':
+            return Fore.CYAN
+        elif self.__color == 'yellow':
+            return Fore.YELLOW
+        elif self.__color == 'magenta':
+            return Fore.MAGENTA
+        else:
+            return Fore.RESET
+    
+    def __init__(self, value: object, *, color:Literal['white', 'red', 'blue', 'green', 'cyan', 'yellow', 'magenta', 'nenhum'] = "nenhum", title:Literal["", "REPORT", "ERROR", "COMPLETED"]="") -> None:
+        if not isinstance(value, str):
+            value = str(value)
+        self.__value:str = value
+        self.__color:str = color
+        self.__title:str = title
         
+    def __str__(self) -> str:
+        return f"{self.date}{(f"{self.__title} - " if self.__title else "- ")}{self.color + self.__value + Fore.RESET}"
+
+ 
 if __name__ == "__main__":
     
-    _print("ola")
+    pass
     

@@ -3,14 +3,15 @@ from .dependencies.sap import SAPManipulation
 from .dependencies.credenciais import Credential
 from .dependencies.logs import Logs
 from .dependencies.functions import _print, os, datetime, Functions
+from .dependencies.config import Config
 
 class FolderNotFound(Exception):
     def __init__(self, *args: object) -> None:
         super().__init__(*args)
 
 class StartReport(SAPManipulation):    
-    def __init__(self, credential:Literal["SAP_PRD", "SAP_QAS", "SAP_PRD-Renan"]) -> None:
-        crd:dict = Credential(credential).load()
+    def __init__(self, *args, **kwargs) -> None:
+        crd:dict = Credential(Config()['credential']['crd']).load()
         super().__init__(user=crd['user'], password=crd['password'], ambiente=crd['ambiente'])
         self.__log:Logs = Logs()
 
