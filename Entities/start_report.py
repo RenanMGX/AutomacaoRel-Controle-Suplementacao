@@ -12,7 +12,7 @@ class FolderNotFound(Exception):
 class StartReport(SAPManipulation):    
     def __init__(self, *args, **kwargs) -> None:
         crd:dict = Credential(Config()['credential']['crd']).load()
-        super().__init__(user=crd['user'], password=crd['password'], ambiente=crd['ambiente'])
+        super().__init__(user=crd['user'], password=crd['password'], ambiente=crd['ambiente'], new_conection=True)
         self.__log:Logs = Logs()
 
     @SAPManipulation.start_SAP
