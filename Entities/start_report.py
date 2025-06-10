@@ -1,19 +1,18 @@
 from typing import Dict, Literal
-from .dependencies.sap import SAPManipulation
-from .dependencies.credenciais import Credential
-from .dependencies.logs import Logs
-from .dependencies.functions import _print, os, datetime, Functions
-from .dependencies.config import Config
+from patrimar_dependencies.sap import SAPManipulation
+from patrimar_dependencies.functions import _print, datetime, Functions
+from botcity.maestro import * # type: ignore
+import os
+
 
 class FolderNotFound(Exception):
     def __init__(self, *args: object) -> None:
         super().__init__(*args)
 
 class StartReport(SAPManipulation):    
-    def __init__(self, *args, **kwargs) -> None:
-        crd:dict = Credential(Config()['credential']['crd']).load()
-        super().__init__(user=crd['user'], password=crd['password'], ambiente=crd['ambiente'], new_conection=True)
-        self.__log:Logs = Logs()
+    def __init__(self, *, maestro:BotMaestroSDK, user:str, password:str, ambiente:str) -> None:
+        self.maestro:BotMaestroSDK = maestro
+        super().__init__(user=user, password=password, ambiente=ambiente, new_conection=True)
 
     @SAPManipulation.start_SAP
     def extrair_rel_suplementacao(self, *, 
@@ -45,8 +44,13 @@ class StartReport(SAPManipulation):
             self.session.findById("wnd[1]/tbar[0]/btn[0]").press()
         
         except Exception as error:
-            _print(f"Erro: {error}")
-            self.__log.register(status='Error', description="erro ao gerar relatorio")
+            _print(f"Erro: {error}")            
+            self.maestro.alert(
+                task_id=self.maestro.get_execution().task_id,
+                title="erro ao gerar relatorio",
+                message=str(error),
+                alert_type=AlertType.ERROR
+            )            
             return "None"
         
         Functions.fechar_excel(file_name)
@@ -80,7 +84,14 @@ class StartReport(SAPManipulation):
         
         except Exception as error:
             _print(f"Erro: {error}")
-            self.__log.register(status='Error', description="erro ao gerar relatorio")
+            self.maestro.alert(
+                task_id=self.maestro.get_execution().task_id,
+                title="erro ao gerar relatorio",
+                message=str(error),
+                alert_type=AlertType.ERROR
+            )            
+            
+            
             return "None"
         
         Functions.fechar_excel(file_name)

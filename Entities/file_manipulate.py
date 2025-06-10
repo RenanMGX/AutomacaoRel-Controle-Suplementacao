@@ -1,6 +1,6 @@
 import os
 import pandas as pd
-from .dependencies.functions import Functions
+from patrimar_dependencies.functions import Functions
 import shutil
 from time import sleep
 
