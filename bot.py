@@ -29,6 +29,7 @@ from Entities.file_manipulate import FileManipulate
 from Entities.start_report import StartReport
 from datetime import datetime
 import os
+from time import sleep
 
 # Disable errors if we are not connected to Maestro
 BotMaestroSDK.RAISE_NOT_CONNECTED = False #type: ignore
@@ -87,31 +88,35 @@ if __name__ == '__main__':
     print(f"Task ID is: {execution.task_id}")
     print(f"Task Parameters are: {execution.parameters}")
 
-
-    try:
-        process = Process()
-        Execute.start()
-        
-        maestro.finish_task(
-                    task_id=execution.task_id,
-                    status=AutomationTaskFinishStatus.SUCCESS,
-                    message="Tarefa Extração Relatorio Controle - Suplementação finalizada com sucesso",
-                    total_items=2, # Número total de itens processados
-                    processed_items=process.process, # Número de itens processados com sucesso
-                    failed_items=0 # Número de itens processados com falha
-        )
-        
-    except Exception as error:
-        ia_response = "Sem Resposta da IA"
+    for _ in range(3):
         try:
-            token = maestro.get_credential(label="GeminiIA-Token-Default", key="token")
-            if isinstance(token, str):
-                ia_result = ErrorIA.error_message(
-                    token=token,
-                    message=traceback.format_exc()
-                )
-                ia_response = ia_result.replace("\n", " ")
-        except Exception as e:
-            maestro.error(task_id=int(execution.task_id), exception=e)
+            process = Process()
+            Execute.start()
+            
+            maestro.finish_task(
+                        task_id=execution.task_id,
+                        status=AutomationTaskFinishStatus.SUCCESS,
+                        message="Tarefa Extração Relatorio Controle - Suplementação finalizada com sucesso",
+                        total_items=2, # Número total de itens processados
+                        processed_items=process.process, # Número de itens processados com sucesso
+                        failed_items=0 # Número de itens processados com falha
+            )
+            break
+            
+        except Exception as error:
+            ia_response = "Sem Resposta da IA"
+            try:
+                token = maestro.get_credential(label="GeminiIA-Token-Default", key="token")
+                if isinstance(token, str):
+                    ia_result = ErrorIA.error_message(
+                        token=token,
+                        message=traceback.format_exc()
+                    )
+                    ia_response = ia_result.replace("\n", " ")
+            except Exception as e:
+                maestro.error(task_id=int(execution.task_id), exception=e)
 
-        maestro.error(task_id=int(execution.task_id), exception=error, tags={"IA Response": ia_response})
+            maestro.error(task_id=int(execution.task_id), exception=error, tags={"IA Response": ia_response})
+
+        sleep(5 * 60)
+        
