@@ -28,6 +28,7 @@ from patrimar_dependencies.gemini_ia import ErrorIA
 from patrimar_dependencies.screenshot import screenshot
 from Entities.file_manipulate import FileManipulate
 from Entities.start_report import StartReport
+from patrimar_dependencies.sharepointfolder import SharePointFolders
 from datetime import datetime
 import os
 from time import sleep
@@ -59,7 +60,8 @@ class Execute:
         if not os.path.exists(download_path):
             os.makedirs(download_path)    
         
-        destiny_path:str = f'C:\\Users\\{os.getlogin()}\\PATRIMAR ENGENHARIA S A\\RPA - Documentos\\RPA - Dados\\RPA - Controle - Suplementação'
+        
+        destiny_path = SharePointFolders(r"RPA - Dados\RPA - Controle - Suplementação").value
         if not os.path.exists(destiny_path):
             raise FileNotFoundError(f"O caminho '{destiny_path}' não foi encontrado. Verifique se o diretório existe.")
         
